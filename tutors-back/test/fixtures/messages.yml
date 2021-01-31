@@ -1,0 +1,9 @@
+# Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  text: MyText
+  sentDateTime: 2021-01-29 20:00:37
+
+two:
+  text: MyText
+  sentDateTime: 2021-01-29 20:00:37
