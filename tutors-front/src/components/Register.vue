@@ -5,28 +5,28 @@
 			<div class="card-body" width="250px">
 				<form @submit.prevent="checkForm" accept-charset="UTF-8">
 					<div class="form-group">
-						<input v-bind:class="{'is-invalid': firstNameError,  '': !firstNameError}" class="form-control" placeholder="First name" v-model="firstName" type="text">
+						<input v-bind:class="{'is-invalid': firstNameError,  '': !firstNameError}" class="form-control" placeholder="First name" v-model="firstName" type="text"/>
 						<p style="margin-top:10px;text-align:center;" class="text-danger" v-if="firstNameError">
 						{{firstNameError}}
 						</p>
 					</div>
 					
 					<div class="form-group">
-						<input v-bind:class="{'is-invalid': lastNameError,  '': !lastNameError}" class="form-control" placeholder="Last name" v-model="lastName" type="text">
+						<input v-bind:class="{'is-invalid': lastNameError,  '': !lastNameError}" class="form-control" placeholder="Last name" v-model="lastName" type="text"/>
 						<p style="margin-top:10px;text-align:center;" class="text-danger" v-if="lastNameError">
 						{{lastNameError}}
 						</p>
 					</div>
 					
 					<div class="form-group">
-						<input v-bind:class="{'is-invalid': emailError,  '': !emailError}" class="form-control" placeholder="E-mail" v-model="email" type="text">
+						<input v-bind:class="{'is-invalid': emailError,  '': !emailError}" class="form-control" placeholder="E-mail" v-model="email" type="text"/>
 						<p style="margin-top:10px;text-align:center;" class="text-danger" v-if="emailError">
 						{{emailError}}
 						</p>
 					</div>
 					
 					<div class="form-group">
-						<input v-bind:class="{'is-invalid': passwordError,  '': !passwordError}" class="form-control" placeholder="Password" v-model="password" type="password" value="">
+						<input v-bind:class="{'is-invalid': passwordError,  '': !passwordError}" class="form-control" placeholder="Password" v-model="password" type="password" value=""/>
 						<p style="margin-top:10px;text-align:center;" class="text-danger" v-if="passwordError">
 						{{passwordError}}
 						</p>
@@ -34,8 +34,8 @@
 					
 					<select v-bind:class="{'is-invalid': accountTypeError,  '': !accountTypeError}" v-model="accountType" class="custom-select">
 						<option value="" selected>I am...</option>
-						<option value = "students">Student</option>
-						<option value = "teachers">Teacher</option>
+						<option value = "student">Student</option>
+						<option value = "teacher">Teacher</option>
 					</select>
 					<p style="margin-top:10px;text-align:center;" class="text-danger" v-if="accountTypeError">
 					{{accountTypeError}}
@@ -78,24 +78,26 @@ export default {
   methods: {
   
 	register () {
-	
-    const requestOptions = {
-		method: 'POST',
-		headers: { 
-		  'Content-Type': 'application/json',
-		},
-		body: JSON.stringify({ firstName: this.firstName, lastName: this.lastName, email:this.email, password: this.password })
-    };
-	fetch(process.env.ROOT_API+'/'+this.accountType, requestOptions)
-	  .then(response => response.json())
-	  .then(json => {
-	    console.log(json)
-		// Check if email is already in database
-	    if (json.email_already_exists)
-          this.emailError = 'User with this email is already registered'
-		else
-			this.$router.push("teachers")
-	  })
+			  
+		var account = { firstName: this.firstName, lastName: this.lastName, email:this.email,
+							password: this.password, accountType: this.accountType }
+							
+		// Log out
+		this.$store.dispatch('logout').then(() => {
+		    // Register
+			this.$store
+				.dispatch("register", account)
+				.then((res) => {
+				  this.$router.push("teachers")
+				})
+				.catch((err) => {
+					console.log(this.$store.state.status)
+					if (err.data.emailAlreadyExists)
+					  this.emailError = 'This email is already taken'
+				})
+		})
+	  
+
 	
 	},
 	
@@ -109,59 +111,38 @@ export default {
 			this.passwordError = ''
 			this.accountTypeError = ''
 			
-			// Check if email is already taken
-			/*if (!this.emailExists()) {
-				// Send register request
-				this.register()
-			}*/
 			this.register()
 			
 
 		} else {
 		
-		if (!this.firstName)
-			this.firstNameError = 'Enter your first name'
-		else
-			this.firstNameError = ''
-			
-		if (!this.lastName)
-			this.lastNameError = 'Enter your last name'
-		else
-			this.lastNameError = ''
-			
-		if (!this.email)
-			this.emailError = 'Enter your email'
-		else
-			this.emailError = ''
-			
-		if (!this.password)
-			this.passwordError = 'Enter your password'
-		else
-			this.passwordError = ''
-			
-		if (!this.accountType)
-			this.accountTypeError = 'Choose your account type'
-		else
-			this.accountTypeError = ''
-			
-		
+			if (!this.firstName)
+				this.firstNameError = 'Enter your first name'
+			else
+				this.firstNameError = ''
+				
+			if (!this.lastName)
+				this.lastNameError = 'Enter your last name'
+			else
+				this.lastNameError = ''
+				
+			if (!this.email)
+				this.emailError = 'Enter your email'
+			else
+				this.emailError = ''
+				
+			if (!this.password)
+				this.passwordError = 'Enter your password'
+			else
+				this.passwordError = ''
+				
+			if (!this.accountType)
+				this.accountTypeError = 'Choose your account type'
+			else
+				this.accountTypeError = ''
 		}
 	},
-	emailExists () {
-		const requestOptions = {
-			method: 'HEAD',
-			headers: { 
-			  'Content-Type': 'application/json',
-			},
-			//body: JSON.stringify({ email: this.email })
-
-		};
-		fetch(process.env.ROOT_API+'/email', requestOptions)
-		  .then(response => response.json())
-		  .then(json => console.log(json))
-		  
-		return true
-	}
+	
   }
 }
 </script>

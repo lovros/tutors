@@ -26,6 +26,9 @@ Rails.application.configure do
     config.cache_store = :null_store
   end
 
+
+  # Mailer setup for devise
+  config.action_mailer.default_url_options = {hots: 'localhost', port:'3000'}
   # Don't care if the mailer can't send.
   config.action_mailer.raise_delivery_errors = false
 

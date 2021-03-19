@@ -10,7 +10,16 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20210130123346) do
+ActiveRecord::Schema.define(version: 20210319092448) do
+
+  create_table "accounts", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci" do |t|
+    t.string "email"
+    t.string "password_digest"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.string "account_user_type"
+    t.integer "account_user_id"
+  end
 
   create_table "appointments", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci" do |t|
     t.datetime "startDateTime"
@@ -30,24 +39,22 @@ ActiveRecord::Schema.define(version: 20210130123346) do
   create_table "students", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci" do |t|
     t.string "firstName", null: false
     t.string "lastName", null: false
-    t.string "email", null: false
-    t.string "password_digest", null: false
     t.string "photo"
     t.bigint "appointments_id"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.text "about"
     t.index ["appointments_id"], name: "index_students_on_appointments_id"
   end
 
   create_table "teachers", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci" do |t|
     t.string "firstName", null: false
     t.string "lastName", null: false
-    t.string "email", null: false
-    t.string "password_digest", null: false
     t.string "photo"
     t.bigint "appointments_id"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.text "about"
     t.index ["appointments_id"], name: "index_teachers_on_appointments_id"
   end
 

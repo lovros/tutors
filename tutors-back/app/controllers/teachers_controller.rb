@@ -1,57 +1,45 @@
 class TeachersController < ApplicationController
-  before_action :set_teacher, only: [:show, :update, :destroy]
-
+  before_action :set_teacher, only: [:show]
+  skip_before_action :authorized, only: [:index, :show]
   # GET /teachers
   def index
-    @teachers = Teacher.select(['id','firstName', 'lastName', 'email', 'photo'])
-
-    render json: @teachers
+    # Join teachers with accounts
+  	@teacher_joined = Teacher.joins(:account).select("teachers.*,
+		accounts.id AS account_id")
+		
+	responseJson = JSON.parse('{
+	  "teachers": [
+	  ]
+	}')
+	@teacher_joined.each do |t|
+	  base64Photo = ""
+	  unless t.photo.file.nil?
+	    base64Photo = "data:image/png;base64," + Base64.encode64(File.open(t.photo.path, 'rb').read)
+	  end
+	  teacherHash = t.as_json
+	  teacherHash["base64Photo"] = base64Photo
+	  teacherJson = JSON.parse(teacherHash.to_json)
+	  responseJson["teachers"] << teacherJson
+	end
+    render json: responseJson
   end
 
   # GET /teachers/1
   def show
-    render json: @teacher
-  end
-
-  # POST /teachers
-  def create
-    @teacher = Teacher.new(teacher_params)
-	@teacher.password = params[:password]
-	@teacher.password_confirmation = params[:password]
-	# Check if mail already exists in database, explicit parameter prevents SQL injection
-	if (Student.find_by_email(params[:email]).nil? and Teacher.find_by_email(params[:email]).nil?)
-      if @teacher.save
-        render json: @teacher, status: :created, location: @teacher
-      else
-        render json: @teacher.errors, status: :unprocessable_entity
-      end
-	else
-	  render json: {'email_already_exists' => 'true'}, status: :unprocessable_entity
+    base64Photo = ""
+	unless @teacher.photo.file.nil?
+	  base64Photo = "data:image/png;base64," + Base64.encode64(File.open(@teacher.photo.path, 'rb').read)
 	end
+    render json:{teacher: @teacher, base64Photo: base64Photo}
   end
 
-  # PATCH/PUT /teachers/1
-  def update
-    if @teacher.update(teacher_params)
-      render json: @teacher
-    else
-      render json: @teacher.errors, status: :unprocessable_entity
-    end
-  end
-
-  # DELETE /teachers/1
-  def destroy
-    @teacher.destroy
-  end
 
   private
     # Use callbacks to share common setup or constraints between actions.
+	# Join teachers with accounts, find teacher by account id
     def set_teacher
-      @teacher = Teacher.find(params[:id])
-    end
+    @teacher = Teacher.joins(:account).select("teachers.*, teachers.id,
+	  accounts.id AS account_id").where("accounts.id": params[:id]).first
+	end
 
-    # Only allow a trusted parameter "white list" through.
-    def teacher_params
-      params.require(:teacher).permit(:firstName, :lastName, :email, :password, :photo, :appointments_id)
-    end
 end

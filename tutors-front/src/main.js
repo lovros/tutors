@@ -6,6 +6,14 @@ import App from './App'
 import router from './router'
 import 'bootstrap/dist/css/bootstrap.css'
 import 'bootstrap-vue/dist/bootstrap-vue.css'
+import Axios from 'axios'
+import store from './store'
+
+Vue.prototype.$http = Axios;
+const token = localStorage.getItem('token')
+if(token){
+	Vue.prototype.$http.defaults.headers.common['Authorization'] = 'Bearer '+token
+}
 
 
 Vue.use(BootstrapVue)
@@ -17,6 +25,7 @@ Vue.config.productionTip = false
 new Vue({
   el: '#app',
   router,
+  store,
   components: { App },
   template: '<App/>'
 })

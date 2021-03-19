@@ -2,21 +2,23 @@
 <div class="container teachers">
    
 	<ul class="list-group">
+		<div class="" v-for="teacher in teachers">
+			<li class="list-group-item">
+				<div>
+					
+					<img v-if="teacher.base64Photo" width = "50" height= "50" :src="teacher.base64Photo"
+						class="img-fluid rounded-circle" alt="avatar">
+					<img v-else width = "50" height= "50" src="@/assets/default-photo.png"
+						class="img-fluid rounded-circle" alt="avatar">
+					<span class="mx-5">{{ teacher.firstName }} {{ teacher.lastName }}</span>
+					<span  style="float:right" >
+						<router-link :to="/teachers/+teacher.account_id" type="button" class="btn btn-outline-info mt-1">Profile</router-link>
+					</span>
+				</div>
+			</li>
+		</div>
+	</ul>
 
-   <div class="" v-for="teacher in teachers">
-	    <li class="list-group-item">
-			<div>
-				
-				<img width = "50" height= "50" src="../assets/default-photo.png"
-					class="img-fluid rounded-circle" alt="avatar">
-				<span class="mx-5">{{ teacher.firstName }} {{ teacher.lastName }}</span>
-
-			</div>
-		</li>
-  </div>
-  </ul>
-
-  
 </div>
 </template>
 
@@ -27,31 +29,23 @@ export default {
   data () {
     return {
       teachers: [],
-  
     }
   },
   
-  created () {
-  
-	console.log("created called")
-    const requestOptions = {
-		method: 'GET',
-		headers: { 
-		  'Content-Type': 'application/json',
-		},
-    };
-	
-	fetch(process.env.ROOT_API+'/teachers', requestOptions)
-	  .then(response => response.json())
-	  .then(data => {
-		this.teachers = data
-	  })
-	  
+  created () {	  
+	this.getTeachers()
   },
   
   methods: {
-  
-	
+	getTeachers() {
+		this.$http({ url: process.env.ROOT_API+'/teachers', method: 'GET'})
+				.then(res => {
+					this.teachers = res.data.teachers
+				})
+				.catch(err => {
+					console.log(err)
+				})
+	}
   }
 }
 </script>
